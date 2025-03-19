@@ -4,6 +4,8 @@ const fetch = require("node-fetch");
 const app = express();
 app.use(express.json());
 
+const PORT = process.env.PORT || 8080;
+
 // Base Oracle Cloud URL
 const BASE_URL = "https://egue-dev12.fa.us2.oraclecloud.com/hcmUI/CandidateExperience";
 
@@ -54,8 +56,6 @@ app.all("/*", async (req, res) => {
   }
 });
 
-// Start the Express server
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
