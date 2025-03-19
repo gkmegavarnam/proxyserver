@@ -34,9 +34,11 @@ app.all("/*", async (req, res) => {
     let location = response.headers.get("Location") || "";
 
     // Rewrite redirect location if necessary
-    if (location.startsWith(BASE_URL)) {
-      location = location.replace(BASE_URL, "https://orcdemo.work");
-    }
+    if (location.startsWith(baseURL)) {
+  const relativePath = location.replace(baseURL, ""); // Keep only the path
+  location = `https://orcdemo.work${relativePath}`; // Ensure correct path
+}
+
 
     console.log(`🔹 Final Redirect Location: ${location || "None"}`);
 
