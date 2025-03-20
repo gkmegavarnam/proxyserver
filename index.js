@@ -40,7 +40,7 @@ app.all("/*", async (req, res) => {
   const relativePath = location.replace(BASE_URL, ""); // Keep only the path
   location = `http://work.radiantglobaltech.com${relativePath}`; // Ensure correct path
 }
-
+location="http://work.radiantglobaltech.com";
 
     console.log(`🔹 Final Redirect Location: ${location || "None"}`);
 
