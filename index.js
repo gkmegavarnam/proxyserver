@@ -38,7 +38,7 @@ app.all("/*", async (req, res) => {
     // Rewrite redirect location if necessary
     if (location.startsWith(BASE_URL)) {
   const relativePath = location.replace(BASE_URL, ""); // Keep only the path
-  location = `https://orcdemo.work${relativePath}`; // Ensure correct path
+  location = `https://work.radiantglobaltech.com${relativePath}`; // Ensure correct path
 }
 
 
