@@ -1,61 +1,84 @@
-const express = require("express");
-const fetch = require("node-fetch");
+const fetch = require('node-fetch');
 
-const app = express();
-app.use(express.json());
+// Constants
+const ORC_BASE = "https://egue-dev12.fa.us2.oraclecloud.com/hcmUI/CandidateExperience";
+const GROUP_DOMAIN = "careers.vision-vanity.com";
+const SUB_BRAND_DOMAINS = ["campus.vision-vanity.com", "jobs.vision-vanity.com"];
 
-const PORT = process.env.PORT || 8080;
+const subdomainPaths = {
+  "campus.vision-vanity.com": "/en/sites/CX_1042",
+  "jobs.vision-vanity.com": "/en/sites/CX_1002",
+};
 
-// Base Oracle Cloud URL
-const BASE_URL = "https://egue-dev12.fa.us2.oraclecloud.com/hcmUI/CandidateExperience";
+const cxToDomainMap = {
+  CX_1042: "campus.vision-vanity.com",
+  CX_1002: "jobs.vision-vanity.com",
+};
 
-// Middleware to log incoming requests
-app.use((req, res, next) => {
-  console.log(`🔹 Request received: ${req.method} ${req.url} from ${req.headers.host}`);
-  next();
-});
+// Helper to build a redirect response
+function buildRedirect(res, locationUrl) {
+  res.status(301).header({ Location: locationUrl, 'Content-Type': 'text/html' })
+     .send(`<html><body>Redirecting to <a href="${locationUrl}">${locationUrl}</a></body></html>`);
+}
 
-// Proxy handler for all requests
-app.all("/*", async (req, res) => {
+// Proxy to Oracle
+async function proxyToOracle(req, res, oracleBaseUrl, path, queryString, originatingDomainName) {
+  const targetUrl = oracleBaseUrl + path + queryString;
   try {
-    const originalPath = req.path || "";
-    const queryString = new URLSearchParams(req.query).toString();
-    const targetUrl = `${BASE_URL}${originalPath}${queryString ? `?${queryString}` : ""}`;
-
-    console.log(`🔹 Proxying request to: ${targetUrl}`);
-
     const response = await fetch(targetUrl, {
-      headers: { "ora-irc-vanity-domain": "Y" },
-      redirect: "manual",
+      headers: { 'ora-irc-vanity-domain': 'Y' },
+      redirect: 'manual',
     });
 
-    // Extract response details
+    let location = response.headers.get('Location') || '';
+    if (location.startsWith(oracleBaseUrl)) {
+      location = location.replace(oracleBaseUrl, `https://${originatingDomainName}`);
+    }
+
     const bodyText = await response.text();
-    const status = response.status;
-    const contentType = response.headers.get("Content-Type") || "text/html";
-    let location = response.headers.get("Location") || "";
-
-    // Rewrite redirect location if necessary
-    if (location.startsWith(BASE_URL)) {
-  const relativePath = location.replace(BASE_URL, ""); // Keep only the path
-  location = `https://azw.orcdemo.work${relativePath}`; // Ensure correct path
-}
-//location="http://work.radiantglobaltech.com/en/sites/CX_90008";
-
-    console.log(`🔹 Final Redirect Location: ${location || "None"}`);
-
-    // Send response
-    res.status(status).set({
-      "Content-Type": contentType,
-      ...(location && { Location: location }), // Include Location header only if needed
+    res.status(response.status).header({
+      'Content-Type': response.headers.get('Content-Type') || 'text/html',
+      Location: location,
     }).send(bodyText);
-
   } catch (err) {
-    console.error("❌ Error proxying to Oracle:", err);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error proxying to Oracle:", err);
+    res.status(500).send("Internal Server Error");
   }
-});
+}
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+// Main handler
+async function handler(req, res) {
+  const domainName = req.headers?.host || '';
+  const originalPath = req.path || '/';
+  const queryString = Object.keys(req.query).length > 0
+    ? '?' + new URLSearchParams(req.query).toString()
+    : '';
+
+  // Case A: Sub-brand Domains
+  if (SUB_BRAND_DOMAINS.includes(domainName)) {
+    const customPath = subdomainPaths[domainName];
+    if (originalPath.startsWith(customPath)) {
+      return await proxyToOracle(req, res, ORC_BASE, originalPath, queryString, domainName);
+    } else {
+      return buildRedirect(res, `https://${domainName}${customPath}`);
+    }
+  }
+
+  // Case B: Group Domain
+  if (domainName === GROUP_DOMAIN) {
+    const match = originalPath.match(/(CX_[0-9]+)/);
+    if (match) {
+      const cxCode = match[1];
+      const newDomain = cxToDomainMap[cxCode];
+      if (newDomain) {
+        return buildRedirect(res, `https://${newDomain}${originalPath}${queryString}`);
+      }
+    }
+    return await proxyToOracle(req, res, ORC_BASE, originalPath, queryString, domainName);
+  }
+
+  // Case C: Fallback
+  return await proxyToOracle(req, res, ORC_BASE, originalPath, queryString, domainName);
+}
+
+module.exports = { handler };
