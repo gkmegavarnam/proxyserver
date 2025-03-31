@@ -5,15 +5,15 @@ const app = express();
 // Constants
 const ORC_BASE = "https://egue-dev12.fa.us2.oraclecloud.com/hcmUI/CandidateExperience";
 const GROUP_DOMAIN = "careers.vision-vanity.com";
-const SUB_BRAND_DOMAINS = ["campus.vision-vanity.com", "jobs.vision-vanity.com"];
+const SUB_BRAND_DOMAINS = ["azw.orcdemo.work", "jobs.vision-vanity.com"];
 
 const subdomainPaths = {
-  "campus.vision-vanity.com": "/en/sites/CX_1042",
+  "azw.orcdemo.work": "/en/sites/CX_77006",
   "jobs.vision-vanity.com": "/en/sites/CX_1002",
 };
 
 const cxToDomainMap = {
-  CX_1042: "campus.vision-vanity.com",
+  CX_77006: "azw.orcdemo.work",
   CX_1002: "jobs.vision-vanity.com",
 };
 
