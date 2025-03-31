@@ -5,16 +5,16 @@ const app = express();
 // Constants
 const ORC_BASE = "https://egue-dev12.fa.us2.oraclecloud.com/hcmUI/CandidateExperience";
 const GROUP_DOMAIN = "careers.vision-vanity.com";
-const SUB_BRAND_DOMAINS = ["azw.orcdemo.work", "jobs.vision-vanity.com"];
+const SUB_BRAND_DOMAINS = ["azw.orcdemo.work", "marsaz.orcdemo.work"];
 
 const subdomainPaths = {
   "azw.orcdemo.work": "/en/sites/CX_77006",
-  "jobs.vision-vanity.com": "/en/sites/CX_1002",
+  "marsaz.orcdemo.work": "/en/sites/CX_60008",
 };
 
 const cxToDomainMap = {
   CX_77006: "azw.orcdemo.work",
-  CX_1002: "jobs.vision-vanity.com",
+  CX_60008: "marsaz.orcdemo.work",
 };
 
 // Helper to build a redirect response
