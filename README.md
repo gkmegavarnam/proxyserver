@@ -84,7 +84,7 @@ flowchart TD
 
 ### UML sequence diagram <img src="https://upload.wikimedia.org/wikipedia/commons/5/50/Oracle_logo.svg" alt="Oracle" width="32"/>
 
-<img src="file:///C:/Users/slim 3/Downloads/UML.png" alt="UML" width="100%">
+<img src="UML.png" alt="UML" width="100%">
 
 ### File structure
 
