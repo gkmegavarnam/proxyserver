@@ -58,29 +58,7 @@ Edit constants in `index.js`:
   - Else: proxy to Oracle.
 - **Else (any other host)**: proxy to Oracle.
 
-### Architecture diagram <img src="https://nodejs.org/static/images/logo.svg" alt="Node.js" width="16"/> <img src="https://upload.wikimedia.org/wikipedia/commons/6/64/Expressjs.png" alt="Express" width="16"/> <img src="https://upload.wikimedia.org/wikipedia/commons/5/50/Oracle_logo.svg" alt="Oracle" width="36"/>
 
-```mermaid
-flowchart TD
-  A[Client] -->|HTTP(S)| B[Express app.all('*')]
-  B --> C{Host header}
-  C -->|Sub-brand domain| D{Path starts with customPath?}
-  D -->|Yes| E[proxyToOracle(ORC_BASE, path, query)]
-  D -->|No| R[301 to https://domain+customPath]
-  C -->|Group domain| G{Path contains CX_######?}
-  G -->|Yes & mapped| M[301 to https://mappedDomain+originalPath+query]
-  G -->|No / not mapped| E
-  C -->|Other host| E
-
-  subgraph Proxying
-    E --> F[Fetch ORC_BASE+path+query<br/>headers: ora-irc-vanity-domain=Y<br/>redirect: manual]
-    F --> H{Response Location}
-    H -->|Starts with ORC_BASE| W[Rewrite to https://originHost + rest]
-    H -->|Other / empty| P[Pass through]
-    W --> S[Return proxied response]
-    P --> S
-  end
-```
 
 <img src="Architecture.png" alt="Arch" width="100%">
 
