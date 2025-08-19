@@ -59,11 +59,11 @@ Edit constants in `index.js`:
 - **Else (any other host)**: proxy to Oracle.
 
 
-**Architecture Diagram**
+### Architecture Diagram
 <img src="Architecture.png" alt="Arch" width="100%">
 
 
-**UML Diagram**
+### UML Diagram
 <img src="UML.png" alt="UML" width="100%">
 
 ### File structure
